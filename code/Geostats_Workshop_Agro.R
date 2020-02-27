@@ -45,7 +45,7 @@ source("code/MoranI.R")
 
 # Geary C
 corgramC<-GearyC(cbind(AgroSP$X,AgroSP$Y),AgroSP$Ca,seq(0,350,50))
-plot(corgramC) # Il y a d'autocorrelation espaciale dès le quatrieme classe, 173.98m
+plot(corgramC) # Il y a d'autocorrelation espaciale jusqu'a le quatrieme classe, 173.98m
 
 # Moran's I
 corgramI<-MoranI(cbind(AgroSP$X,AgroSP$Y),AgroSP$Ca,seq(0,350,50))
@@ -121,7 +121,7 @@ spplot(kri['var1.pred']) # Map of kriging estimates
 spplot(kri['var1.var']) # Map of kriging variances
 
 # Save the kriged estimates to a TIF file in your working directory
-writeGDAL(kri['var1.pred'],'CaKri.tif')
+writeGDAL(kri['var1.pred'],'output/CaKri.tif')
 
 # Leave-one-out Cross-validation
 crossval.Ca <- krige(Ca ~ 1, AgroSP[-1,], AgroSP[1,], model = model.Ca, maxdist=200)
@@ -140,19 +140,60 @@ plot(vario.Ca)
 v <- vgm(500, "Sph", 200, nug = 250)
 model.Ca = fit.variogram(vario.Ca, model = v)
 
-Ca.sim <- krige(formula = Ca~1, ArboSP, Arbo_mask, model = model.Ca,
+Ca.sim <- krige(formula = Ca~1, AgroSP, Agro_mask, model = model.Ca,
                 nmax = 15, nsim = 9)
 spplot(Ca.sim)
 
 # pH
-vario.pH <- variogram(pH ~ 1, ArboSP,cutoff=350, width=50)
+vario.pH <- variogram(pH ~ 1, AgroSP,cutoff=350, width=50)
 plot(vario.pH)
-v <- vgm(500, "Gau", 200, nug = 250)
+v <- vgm(500, "Gau", 200, nug = 178)
 model.pH = fit.variogram(vario.pH, model = v)
 
-pH.sim <- krige(formula = pH~1, ArboSP, Arbo_mask, model = model.pH,
+pH.sim <- krige(formula = pH~1, AgroSP, Agro_mask, model = model.pH,
                 nmax = 35, nsim = 9)
 spplot(pH.sim)
+
+##====================================================
+## PART 5 - BIVARIATE ANALYSIS
+##====================================================
+
+rm(Arbo.g)
+# Note: we use the scale() fonction here to standardize the data, which is common practice in multivariate analysis. 
+Arbo.g <- gstat(id="Wa", formula=scale(WA)~1, data=ArboSP, nmax = 10)
+Arbo.g <- gstat(Arbo.g, "SuM", scale(SuM)~1, ArboSP, nmax = 10)
+Xmodel <- vgm(0.3, "Sph", 100, nug = 0.1)
+Xmodel <- vgm(0.7, "Sph", 250,add.to=Xmodel)
+Xvario <- variogram(Arbo.g, cutoff=300,40)
+XArbo.fit = fit.lmc(Xvario, Arbo.g,Xmodel,fit.lmc=TRUE)
+
+# Cross-variogram
+plot(Xvario, XArbo.fit)
+xv=Xvario$id=='Wa.SuM'
+v1=Xvario$id=='Wa'
+v2=Xvario$id=='SuM'
+
+# Calculation of hulls of perfect correlations
+hulls=sqrt(Xvario[v1,3]*Xvario[v2,3])
+hulls=cbind(hulls,-hulls)
+
+plot(Xvario[xv,2],Xvario[xv,3],ylim=range(hulls))
+par(new=FALSE)
+lines(Xvario[v1,2],hulls[,1],col='red')
+lines(Xvario[v1,2],hulls[,2],col='red')
+
+# Codispersion coefficient (values between 0 et 1 at each lag)
+codcoef<-Xvario[xv,3]/sqrt(Xvario[v1,3]*Xvario[v2,3])
+plot(Xvario[v1,2],codcoef)
+
+# Correlation with Dutilleul's modified T-test
+# Sugar maple and pH
+corr1<-modified.ttest(ArboSP$SuM,ArboSP$pH, coordinates(ArboSP))
+print(corr1) # Note the really low effective sample size (adjusted degrees of freedom), due to the strong spatial correlation in the variables
+
+# Sugar maple and total soil carbon
+corr2<-modified.ttest(ArboSP$SuM,ArboSP$tC, coordinates(ArboSP))
+print(corr2) # Weak spatial structure for Carbon = effective sample size (adjusted degrees of freedom) near the actual sample size value. 
 
 
 

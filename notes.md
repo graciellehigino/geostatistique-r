@@ -31,7 +31,8 @@
 # Estimation and kriging
 - Estimate values at unsampled locations ~> interpolation
 
-## Deterministic functions
+# Variogrammes croisés
+- Variation, en fonction de léchelle, de la relation spatiale entre deux variables
 
 
 
