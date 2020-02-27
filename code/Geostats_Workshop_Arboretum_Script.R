@@ -18,13 +18,13 @@ library(fields)
 
 
 # Select the file 'Arboretum_Data.csv' on your computer. 
-Arbo<-read.csv(file.choose())
+Arbo<-read.csv("data/Arboretum_Data.csv")
 
 # Variables names/acronyms
 # Coordinates("X","Y"), "ID", Total carbon 0-15 cm of soil("tC_015"),Total carbon 15-30 cm of soil ("tC_1530"), Total carbon in forest floow ("FFtC"), Total soil carbon("tC"), Sand %("Sand"), Silt %("Silt"), Clay %("Clay"), Soil pH("pH"), Potassium ("K"), Phosphorus("P"), Magnesium ("Mg"), Calcium ("Ca"), N mineralization("Min"), Basal areas for: Red maple("RM"), Sugar maple("SuM"), Silver maple("SiM"), American beech("BE"), Red oak("RO"), White birch("WB"), Gray birch("GB"), Yellow birch("YB"), Basswood("BW"), Bitternut hickory ("BH"), Shagbark Hickory ("SH"), American elm("AE"), White ash("WA"), Black ash("BA"), Ironwood("IW"), Musclewood("MW"), Hemlock("HE") 
 
 # Select the Arbo_mask.tif file on your computer
-Arbo_mask<-readGDAL(file.choose())
+Arbo_mask<-readGDAL("data/Arbo_mask.tif")
 xy <- Arbo[1:2]
 df <- Arbo[-1:-2]
 ArboSP <- SpatialPointsDataFrame(coords=xy, data=df)
