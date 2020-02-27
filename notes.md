@@ -24,4 +24,14 @@
 - Étendue infinie
 - Structurée spatialement, mais avec un aspect stochastique/aléatoire
 
+## Simulation Gaussian non-conditionelle
+- Pas des donées!
+- Des nuggets vont s'aditioner au modéle spatial
+
+# Estimation and kriging
+- Estimate values at unsampled locations ~> interpolation
+
+## Deterministic functions
+
+
 
