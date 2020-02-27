@@ -4,6 +4,6 @@ Notes et code
 
 Wiki du atelier: https://wiki.qcbs.ca/geostatistics  
 
-`/code`- R scripts and functions
-`/data`- csv and raster files used in exercises
-`notes.md` - random notes from class
+`/code`- R scripts and functions  
+`/data`- csv and raster files used in exercises  
+`notes.md` - random notes from class  
